@@ -1,4 +1,5 @@
 import { IncomingHttpHeaders, OutgoingHttpHeaders, ClientRequest } from "http";
+import { Socket } from "net";
 
 export type Verb = "GET" | "POST" | "PATCH" | "DELETE";
 
@@ -12,23 +13,15 @@ export interface HttpRequestArgs {
   headers?: OutgoingHttpHeaders;
   method: string;
   path: string;
-  payload?: string;
 }
 
 /**
- * Socket requests need a pre-established connection, configured with SockentConnectionConfig
- */
-export interface SocketConnectionConfig {
-  socketPath: string;
-}
-
-/**
- * Socket request have a subset of the arguments that http requests have
+ * Socket requests have a subset of the arguments that http requests have
  */
 export interface SocketRequestArgs {
+  socket: Socket;
   method: Verb;
   path: string;
-  payload?: string;
 }
 
 /**

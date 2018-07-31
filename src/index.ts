@@ -1,4 +1,4 @@
-export * from "./AbstractSocketRequest"
+export * from "./SocketRequest"
 export * from "./BrowserHttpRequest"
 export * from "./NodeHttpRequest"
 export * from "./SimpleResponse"
