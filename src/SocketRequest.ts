@@ -71,6 +71,7 @@ export class SocketRequest implements SimpleRequestInterface {
 
   protected handleConnectionError(data: string): void {
     console.log("Socket connection error: " + data);
+    this.end();
   }
 
   protected end(): void {
