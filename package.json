@@ -1,0 +1,15 @@
+{
+    "name": "@cfxmarkets/ts-httpish",
+    "depedencies": {},
+    "devDependencies": {
+        "@types/mocha": "^5.2.0",
+        "@types/node": "^10.0.6",
+        "@types/power-assert": "^1.5.0",
+        "@types/sinon": "^4.3.3",
+        "mocha": "^5.1.1",
+        "power-assert": "^1.5.0",
+        "sinon": "^5.0.7",
+        "typescript": "^2.8.3",
+        "ts-node": "^7.0.0"
+    }
+}
