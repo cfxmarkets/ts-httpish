@@ -1,5 +1,7 @@
 {
     "name": "@cfxmarkets/ts-httpish",
+    "main": "build/index.js",
+    "types": "src/index.ts",
     "depedencies": {},
     "devDependencies": {
         "@types/mocha": "^5.2.0",

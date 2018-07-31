@@ -6,13 +6,16 @@ import {
 import { SimpleResponse } from "./SimpleResponse";
 import * as net from "net";
 
-export abstract class SocketRequest implements SimpleRequestInterface {
+export abstract class AbstractSocketRequest implements SimpleRequestInterface {
   protected res: SimpleResponseInterface;
   protected socket: net.Socket;
 
   public constructor(opts: SocketRequestArgs, socket: net.Socket) {
     this.socket = socket;
     this.res = new SimpleResponse();
+
+    this.readData = this.readData.bind(this);
+    this.handleConnectionError = this.handleConnectionError.bind(this);
 
     // Handle incoming data
     this.socket.on("data", this.readData);
