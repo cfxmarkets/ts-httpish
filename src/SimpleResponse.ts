@@ -8,7 +8,7 @@ import {
 export class SimpleResponse implements SimpleResponseInterface {
   protected initialized: boolean = false;
   protected status: SimpleResponseStatus = "waiting";
-  protected returnCode: number | null = null;
+  protected returnCode: number = 0;
   protected headers: IncomingHttpHeaders = {};
   protected data: string = "";
   protected handlers: { load: SimpleResponseLoadHandler[] } = {
@@ -94,7 +94,7 @@ export class SimpleResponse implements SimpleResponseInterface {
    *
    * Throws an exception if the response has not been properly initialized
    */
-  public getResponseCode(): number | null {
+  public getResponseCode(): number {
     if (!this.initialized) {
       throw Error(
         "This response has not yet been initialized! This is probably a programmer error. SimpleResponses need to be initialized with status code and response headers as soon as the underlying response object makes those properties available."

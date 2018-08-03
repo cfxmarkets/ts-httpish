@@ -53,7 +53,7 @@ export interface SimpleResponseInterface {
   aggregateData(data: string): SimpleResponseInterface;
   end(): SimpleResponseInterface;
   getStatus(): SimpleResponseStatus;
-  getResponseCode(): number | null;
+  getResponseCode(): number;
   getHeaders(): IncomingHttpHeaders;
   getBody(): string;
   on(
