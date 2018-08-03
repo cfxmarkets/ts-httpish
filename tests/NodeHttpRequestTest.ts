@@ -50,7 +50,7 @@ describe("NodeHttpRequest", () => {
     // Add onload listener
     r.on("load", (res: SimpleResponseInterface): void => {
       statusCode = res.getResponseCode();
-      responseText = res.getData();
+      responseText = res.getBody();
     });
 
     // The onload event shouldn't have fired yet

@@ -55,7 +55,7 @@ export interface SimpleResponseInterface {
   getStatus(): SimpleResponseStatus;
   getResponseCode(): number | null;
   getHeaders(): IncomingHttpHeaders;
-  getData(): string;
+  getBody(): string;
   on(
     ev: "load",
     cb: (res: SimpleResponseInterface) => void

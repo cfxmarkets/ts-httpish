@@ -118,11 +118,11 @@ export class SimpleResponse implements SimpleResponseInterface {
   }
 
   /**
-   * Get the full data from this response.
+   * Get the string body from this response.
    *
    * Throws an exception if the response has not been properly initialized or if it's still receiving data
    */
-  public getData(): string {
+  public getBody(): string {
     if (!this.initialized) {
       throw Error(
         "This response has not yet been initialized! This is probably a programmer error. SimpleResponses need to be initialized with status code and response headers as soon as the underlying response object makes those properties available."

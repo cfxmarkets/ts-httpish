@@ -5,7 +5,11 @@ import { SimpleResponseInterface } from "../src/Types";
 import { SocketRequest } from "../src/SocketRequest";
 
 describe("Httpish SocketRequest", () => {
-  let s: net.Socket = net.createConnection(process.env.HOME + "/Desktop/app.sock");
+  let socketPath: string | undefined = process.env.CFX_APIS_SOCKET_PATH;
+  if (socketPath === undefined) {
+    socketPath = "/srv/local/dev.apis.cfx.private/app.sock";
+  }
+  let s: net.Socket = net.createConnection(socketPath);
   let outstandingCalls: number = 0;
 
   it("should successfully get data from a socket connection", async () => {
@@ -16,8 +20,8 @@ describe("Httpish SocketRequest", () => {
     });
     req.on("load", (res: SimpleResponseInterface): void => {
       assert(res.getResponseCode() === 200, "Response should be 200");
-      assert(typeof res.getData() === "string", "Response should be a string");
-      assert(res.getData().length > 0, "Response should have something in it.");
+      assert(typeof res.getBody() === "string", "Response should be a string");
+      assert(res.getBody().length > 0, "Response should have something in it.");
       outstandingCalls--;
     });
     outstandingCalls++;
@@ -30,8 +34,8 @@ describe("Httpish SocketRequest", () => {
     });
     req.on("load", (res: SimpleResponseInterface): void => {
       assert(res.getResponseCode() === 200, "Response should be 200");
-      assert(typeof res.getData() === "string", "Response should be a string");
-      assert(res.getData().length > 0, "Response should have something in it.");
+      assert(typeof res.getBody() === "string", "Response should be a string");
+      assert(res.getBody().length > 0, "Response should have something in it.");
       outstandingCalls--;
     });
     outstandingCalls++;

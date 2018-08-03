@@ -14,7 +14,7 @@ describe("SimpleResponse Test", () => {
 
 
   it("should throw errors on getters when uninitialized", () => {
-    ([ "getResponseCode", "getHeaders", "getData" ] as any).forEach((method: string) => {
+    ([ "getResponseCode", "getHeaders", "getBody" ] as any).forEach((method: string) => {
       assert.throws(() => {
         (r as any)[method]();
       }, /.*This response has not yet been initialized!.*/);
@@ -22,10 +22,10 @@ describe("SimpleResponse Test", () => {
   });
 
 
-  it("should throw error on getData when not complete", () => {
+  it("should throw error on getBody when not complete", () => {
     r.init(201, {});
     assert.throws(() => {
-      r.getData();
+      r.getBody();
     }, /^Error: Can't get data; this response is still receiving data from the server.$/);
   });
 
@@ -46,7 +46,7 @@ describe("SimpleResponse Test", () => {
       .aggregateData("three")
       .end()
     ;
-    assert.equal(r.getData(), "One two three");
+    assert.equal(r.getBody(), "One two three");
   });
 
 
