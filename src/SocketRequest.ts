@@ -5,6 +5,7 @@ import {
 } from "./Types";
 import { SimpleResponse } from "./SimpleResponse";
 import * as net from "net";
+import { SocketConnectionError } from "./Errors";
 
 export class SocketRequest implements SimpleRequestInterface {
   protected res: SimpleResponseInterface;
@@ -70,8 +71,7 @@ export class SocketRequest implements SimpleRequestInterface {
   }
 
   protected handleConnectionError(data: string): void {
-    console.log("Socket connection error: " + data);
-    this.end();
+    throw new SocketConnectionError("Socket connection error: " + data);
   }
 
   protected end(): void {
