@@ -1,5 +1,5 @@
 import "mocha";
-import * as assert from "power-assert";
+import { assert } from "chai";
 import * as net from "net";
 import { SimpleResponseInterface } from "../src/Types";
 import { SocketRequest } from "../src/SocketRequest";

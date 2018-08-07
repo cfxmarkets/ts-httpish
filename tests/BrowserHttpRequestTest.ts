@@ -1,5 +1,5 @@
 import "mocha";
-import * as assert from "power-assert";
+import { assert } from "chai";
 import { TestBrowserHttpRequest } from "../src/Testing";
 import {
   SimpleResponseInterface,

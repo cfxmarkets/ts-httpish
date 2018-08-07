@@ -1,5 +1,5 @@
 import "mocha";
-import * as assert from "power-assert";
+import { assert } from "chai";
 import { SimpleResponse } from "../src/SimpleResponse";
 import { TestSimpleResponse } from "../src/Testing";
 
