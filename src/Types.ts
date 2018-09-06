@@ -1,5 +1,4 @@
 import { IncomingHttpHeaders, OutgoingHttpHeaders, ClientRequest } from "http";
-import { Socket } from "net";
 
 export type Verb = "GET" | "POST" | "PATCH" | "DELETE";
 
@@ -19,7 +18,7 @@ export interface HttpRequestArgs {
  * Socket requests have a subset of the arguments that http requests have
  */
 export interface SocketRequestArgs {
-  socket: Socket;
+  socketPath: string;
   method: Verb;
   path: string;
 }

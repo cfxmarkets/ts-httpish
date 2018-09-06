@@ -11,10 +11,11 @@ export class SocketRequest implements SimpleRequestInterface {
   protected res: SimpleResponseInterface;
   protected socket: net.Socket;
   protected config: SocketRequestArgs;
+  private resultBuffer: string = "";
 
   public constructor(opts: SocketRequestArgs) {
     this.config = opts;
-    this.socket = opts.socket;
+    this.socket = net.createConnection(opts.socketPath);
     this.res = new SimpleResponse();
 
     this.readData = this.readData.bind(this);
@@ -46,28 +47,42 @@ export class SocketRequest implements SimpleRequestInterface {
     return this;
   }
 
-  protected readData(data: string): void {
-    data = data.toString();
-    let parsed: string[] = data.split("\n");
-    if (this.res.getStatus() === "waiting") {
-      const firstLine = parsed.shift();
-      if (firstLine) {
-        const returnCode: number = +firstLine.trim();
-        if (returnCode === 0) {
-          throw new Error("Socket protocol error: Should have returned status code as first line, but didn't. (Returned '" + firstLine + "' instead.)");
+  protected readData(sockBuffer: string): void {
+    let records = this.getRecords(sockBuffer);
+
+    // We should only be receiving one record per request, so get it and then push other records back onto the socket
+    if (records.length > 0) {
+      let parsed: string[] = (records.shift() as string).split("\n");
+
+      // Put the rest back
+      if (records.length > 0) {
+        this.socket.unshift(records.join("\0") + "\0");
+      }
+
+      // If the response is in waiting state, then the first line is the response code with which to initialize it
+      if (this.res.getStatus() === "waiting") {
+        const firstLine = parsed.shift();
+        if (firstLine) {
+          const returnCode: number = +firstLine.trim();
+          if (returnCode === 0) {
+            throw new Error("Socket protocol error: Should have returned status code as first line, but didn't. (Returned '" + firstLine + "' instead.)");
+          }
+          this.res.init(returnCode, {});
         }
-        this.res.init(returnCode, {});
       }
+
+      let data: string = parsed.join("\n");
+      this.res.aggregateData(data);
+      this.end();
     }
-    if (parsed.length > 0) {
-      data = parsed.join("\n");
-      if (data.substring(data.length - 1) === "\0") {
-        this.res.aggregateData(data.substring(0, data.length -1));
-        this.end();
-      } else {
-        this.res.aggregateData(data);
-      }
-    }
+  }
+
+  private getRecords(sockBuffer: string): string[] {
+    let buffer = this.resultBuffer + sockBuffer.toString();
+    let records: string[] = buffer.split("\0");
+    let last: string|undefined = records.pop();
+    this.resultBuffer = (typeof last === "string") ? last : "";
+    return records;
   }
 
   protected handleConnectionError(data: string): void {
@@ -75,8 +90,7 @@ export class SocketRequest implements SimpleRequestInterface {
   }
 
   protected end(): void {
-    this.socket.removeListener("data", this.readData);
-    this.socket.removeListener("error", this.handleConnectionError);
+    this.socket.destroy();
     this.res.end();
   }
 }

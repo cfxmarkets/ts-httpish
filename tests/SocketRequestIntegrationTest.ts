@@ -9,46 +9,37 @@ describe("Httpish SocketRequest", () => {
   if (socketPath === undefined) {
     socketPath = "/srv/local/dev.apis.cfx.private/app.sock";
   }
-  let s: net.Socket = net.createConnection(socketPath);
-  let outstandingCalls: number = 0;
 
   it("should successfully get data from a socket connection", async () => {
     let req = new SocketRequest({
       method: "GET",
       path: "/brokerage/v2/assets/INVT001",
-      socket: s
+      socketPath: <string>socketPath
     });
     req.on("load", (res: SimpleResponseInterface): void => {
       assert(res.getResponseCode() === 200, "Response should be 200");
       assert(typeof res.getBody() === "string", "Response should be a string");
       assert(res.getBody().length > 0, "Response should have something in it.");
-      outstandingCalls--;
+
+      let invt: any = (JSON.parse(res.getBody() as any)).data;
+      assert.equal(invt.id, "INVT001");
     });
-    outstandingCalls++;
     req.send();
 
     req = new SocketRequest({
       method: "GET",
-      path: "/brokerage/v2/assets/INVT001",
-      socket: s
+      path: "/brokerage/v2/assets/BCAP",
+      socketPath: <string>socketPath
     });
     req.on("load", (res: SimpleResponseInterface): void => {
       assert(res.getResponseCode() === 200, "Response should be 200");
       assert(typeof res.getBody() === "string", "Response should be a string");
       assert(res.getBody().length > 0, "Response should have something in it.");
-      outstandingCalls--;
+
+      let bcap: any = (JSON.parse(res.getBody() as any)).data;
+      assert.equal(bcap.id, "BCAP");
     });
-    outstandingCalls++;
     req.send();
   });
-
-  // Make sure to clean up
-  let i: any;
-  i = setInterval(function() {
-    if (outstandingCalls < 1) {
-      s.destroy();
-      clearInterval(i);
-    }
-  }, 50);
 });
 
