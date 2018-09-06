@@ -2,7 +2,7 @@
     "name": "@cfxmarkets/ts-httpish",
     "description": "A collection of request/response abstractions.",
     "license": "MIT",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "main": "build/index.js",
     "types": "src/index.ts",
     "depedencies": {
