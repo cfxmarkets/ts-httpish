@@ -10,26 +10,57 @@ import * as https from "https";
 import * as sinon from "sinon";
 
 export class TestSimpleResponse extends SimpleResponse {
+  /**
+   * Allows the tester to probe the response's internal state to verify that it is indeed
+   * being updated correctly by the given abstraction (NodeHttpRequest or BrowserHttpRequest)
+   * in response to the various lifecycle events of an HTTP request.
+   */
   public getInternalState(which: string): any {
     return (this as any)[which];
   }
 }
 
 export class TestNodeHttpRequest extends NodeHttpRequest {
+  /**
+   * Returns the raw underlying http request (an official node http(s).ClientRequest object)
+   * that the given NodeHttpRequest is an abstraction for. This is only useful when the user
+   * stubs out raw requests using `requestStub` (see below), as it then allows the user to
+   * call methods on the raw request like `beginReturn`, `pushData`, and `finishRequest` that
+   * cause the response to progress through its lifecycle.
+   */
   public getReq(): http.ClientRequest {
     return this.req;
   }
 
+  /**
+   * Returns the SimpleResponse object being prepared by this NodeHttpRequest abstraction.
+   *
+   * This is useful for testing that the class is indeed updating the response in response to
+   * specific events on the raw underlying request (see above).
+   */
   public getRes(): SimpleResponseInterface {
     return this.res;
   }
 }
 
 export class TestBrowserHttpRequest extends BrowserHttpRequest {
+  /**
+   * Returns the raw underlying http request (an official XMLHttpRequest object) that the
+   * given BrowserHttpRequest is an abstraction for. This is only useful when the user stubs
+   * out raw requests using `requestStub` (see below), as it then allows the user to call
+   * methods on the raw request like `beginReturn`, `pushData`, and `finishRequest` that cause
+   * the response to progress through its lifecycle.
+   */
   public getReq(): XMLHttpRequest {
     return this.req;
   }
 
+  /**
+   * Returns the SimpleResponse object being prepared by this BrowserHttpRequest abstraction.
+   *
+   * This is useful for testing that the class is indeed updating the response in response to
+   * specific events on the raw underlying request (see above).
+   */
   public getRes(): SimpleResponseInterface {
     return this.res;
   }
@@ -61,6 +92,10 @@ export function requestStub(reqOpts: http.RequestOptions | https.RequestOptions,
   // TS complaining about non-existing connection property, so fixing
   r.connection = null;
 
+  /**
+   * Simulate the beginning of an HTTP response. This calls the callback that was given on request create, passing
+   * it a fake http ClientResponse object.
+   */
   r.beginReturn = function(code: number, headers: http.IncomingHttpHeaders): void {
     let res: any = sinon.createStubInstance(http.IncomingMessage);
     r.response = res;
@@ -83,6 +118,9 @@ export function requestStub(reqOpts: http.RequestOptions | https.RequestOptions,
     }
   }
 
+  /**
+   * Simulate an "on data" event, causing the response to indicate that it has received a chunk of data.
+   */
   r.pushData = function(chunk: string) {
     r.response.responseData += chunk;
     r.response.httpHandlers.data.forEach(function(cb: Function) {
@@ -90,6 +128,9 @@ export function requestStub(reqOpts: http.RequestOptions | https.RequestOptions,
     })
   };
 
+  /**
+   * Simulate an "on end" event, i.e., the end of the response.
+   */
   r.finishRequest = function() {
     r.response.httpHandlers.end.forEach(function(cb: Function) {
       cb();

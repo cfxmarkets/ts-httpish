@@ -31,7 +31,7 @@ export class SocketRequest implements SimpleRequestInterface {
     if (!payload) {
       payload = "\0";
     } else {
-      payload += "\u001e" + payload + "\0";
+      payload = "\u001e" + payload + "\0";
     }
     payload = this.config.method + "\u001e" + this.config.path + payload;
     this.socket.write(payload);
