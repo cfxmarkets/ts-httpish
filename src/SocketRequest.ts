@@ -11,21 +11,18 @@ export class SocketRequest implements SimpleRequestInterface {
   protected res: SimpleResponseInterface;
   protected socket: net.Socket;
   protected config: SocketRequestArgs;
+  protected socketRetries: number = 0;
+  protected payload: string|null = null;
   private resultBuffer: string = "";
 
   public constructor(opts: SocketRequestArgs) {
     this.config = opts;
-    this.socket = net.createConnection(opts.socketPath);
     this.res = new SimpleResponse();
 
     this.readData = this.readData.bind(this);
     this.handleConnectionError = this.handleConnectionError.bind(this);
 
-    // Handle incoming data
-    this.socket.on("data", this.readData);
-
-    // Handle errors
-    this.socket.on("error", this.handleConnectionError);
+    this.socket = this.newSocket();
   }
 
   public send(payload?: string): SimpleRequestInterface {
@@ -35,6 +32,7 @@ export class SocketRequest implements SimpleRequestInterface {
       payload = "\u001e" + payload + "\0";
     }
     payload = this.config.method + "\u001e" + this.config.path + payload;
+    this.payload = payload;
     this.socket.write(payload);
     return this;
   }
@@ -77,6 +75,13 @@ export class SocketRequest implements SimpleRequestInterface {
     }
   }
 
+  protected newSocket(): net.Socket {
+    const socket = net.createConnection(this.config.socketPath);
+    socket.on("data", this.readData);
+    socket.on("error", this.handleConnectionError);
+    return socket;
+  }
+
   private getRecords(sockBuffer: string): string[] {
     let buffer = this.resultBuffer + sockBuffer.toString();
     let records: string[] = buffer.split("\0");
@@ -85,8 +90,21 @@ export class SocketRequest implements SimpleRequestInterface {
     return records;
   }
 
-  protected handleConnectionError(data: string): void {
-    throw new SocketConnectionError("Socket connection error: " + data);
+  protected handleConnectionError(e: NodeJS.ErrnoException): void {
+    if (e.code === "EAGAIN") {
+      if (this.socketRetries < (this.config.maxRetries || 1000)) {
+        this.socket.destroy();
+        this.socket = this.newSocket();
+        this.socketRetries++;
+        if (this.payload) {
+          this.socket.write(this.payload);
+        }
+      } else {
+        throw new SocketConnectionError("Socket connection failed after " + this.socketRetries + " retries. Error: " + e);
+      }
+    } else {
+      throw new SocketConnectionError("Socket connection error: " + e);
+    }
   }
 
   protected end(): void {

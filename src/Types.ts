@@ -21,6 +21,7 @@ export interface SocketRequestArgs {
   socketPath: string;
   method: Verb;
   path: string;
+  maxRetries?: number;
 }
 
 /**
