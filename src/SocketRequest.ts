@@ -91,14 +91,17 @@ export class SocketRequest implements SimpleRequestInterface {
   }
 
   protected handleConnectionError(e: NodeJS.ErrnoException): void {
+    const t = this;
     if (e.code === "EAGAIN") {
       if (this.socketRetries < (this.config.maxRetries || 1000)) {
         this.socket.destroy();
-        this.socket = this.newSocket();
-        this.socketRetries++;
-        if (this.payload) {
-          this.socket.write(this.payload);
-        }
+        setTimeout(function() {
+          t.socket = t.newSocket();
+          t.socketRetries++;
+          if (t.payload) {
+            t.socket.write(t.payload);
+          }
+        }, this.config.retryDelay || 50);
       } else {
         throw new SocketConnectionError("Socket connection failed after " + this.socketRetries + " retries. Error: " + e);
       }
