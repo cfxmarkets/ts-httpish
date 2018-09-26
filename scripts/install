@@ -1,0 +1,7 @@
+#! /bin/bash
+
+if command -v tsc; then 
+  tsc
+else
+  echo "It remains to compile the TypeScript in this package.  Install and run tsc."
+fi
