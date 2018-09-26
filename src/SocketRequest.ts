@@ -12,6 +12,7 @@ export class SocketRequest implements SimpleRequestInterface {
   protected socket: net.Socket;
   protected config: SocketRequestArgs;
   protected socketRetries: number = 0;
+  protected errorRetries: number = 0;
   protected payload: string|null = null;
   private resultBuffer: string = "";
 
@@ -92,21 +93,20 @@ export class SocketRequest implements SimpleRequestInterface {
 
   protected handleConnectionError(e: NodeJS.ErrnoException): void {
     const t = this;
-    if (e.code === "EAGAIN") {
-      if (this.socketRetries < (this.config.maxRetries || 1000)) {
-        this.socket.destroy();
-        setTimeout(function() {
-          t.socket = t.newSocket();
-          t.socketRetries++;
-          if (t.payload) {
-            t.socket.write(t.payload);
-          }
-        }, this.config.retryDelay || 50);
-      } else {
-        throw new SocketConnectionError("Socket connection failed after " + this.socketRetries + " retries. Error: " + e);
-      }
+    const retryDelay = e.code === "EAGAIN" ? 100 : 2000;
+    const maxRetries = e.code === "EAGAIN" ? (this.config.maxRetries || 1000) : 120;
+    const socketRetries = e.code === "EAGAIN" ? "socketRetries" : "errorRetries";
+    if (t[socketRetries] < maxRetries) {
+      this.socket.destroy();
+      setTimeout(function() {
+        t.socket = t.newSocket();
+        t[socketRetries]++;
+        if (t.payload) {
+          t.socket.write(t.payload);
+        }
+      }, this.config.retryDelay || retryDelay);
     } else {
-      throw new SocketConnectionError("Socket connection error: " + e);
+      throw new SocketConnectionError("Socket connection failed after " + t[socketRetries] + " retries. Error: " + e);
     }
   }
 
