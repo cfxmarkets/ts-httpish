@@ -37,9 +37,12 @@ export class NodeHttpRequest implements SimpleRequestInterface {
 
   public send(payload?: string): SimpleRequestInterface {
     if (payload) {
-      this.req.write(payload);
+      // Calling end instead of write is necessary for making node set the Content-Length header
+      // instead of using chunked encoding (which is incompatible with PHP over FCGI)
+      this.req.end(payload);
+    } else {
+      this.req.end();
     }
-    this.req.end();
     return this;
   }
 
