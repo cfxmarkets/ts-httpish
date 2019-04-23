@@ -1,29 +1,28 @@
 {
-    "name": "@cfxmarkets/ts-httpish",
-    "description": "A collection of request/response abstractions.",
-    "license": "MIT",
-    "version": "0.3.1",
-    "main": "build/index.js",
-    "types": "src/index.ts",
-    "depedencies": {
-    },
-    "devDependencies": {
-      "@types/mocha": "^5.2.0",
-      "@types/chai": "^4.1.2",
-      "@types/node": "^8.0.0",
-      "@types/sinon": "^4.3.3",
-      "mocha": "^5.1.1",
-      "chai": "^4.1.2",
-      "sinon": "^5.0.7",
-      "ts-node": "^7.0.0"
-    },
-    "scripts": {
-      "build": "tsc",
-      "docs": "typedoc --theme minimal --mode modules --out docs/",
-      "test": "mocha -r 'ts-node/register' tests/*Test.ts"
-    },
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/cfxmarkets/ts-httpish.git"
-    }
+  "name": "@openfinance/ts-httpish",
+  "description": "A collection of request/response abstractions.",
+  "license": "MIT",
+  "version": "0.3.1",
+  "main": "build/index.js",
+  "types": "src/index.ts",
+  "depedencies": {},
+  "devDependencies": {
+    "@types/mocha": "^5.2.0",
+    "@types/chai": "^4.1.2",
+    "@types/node": "^8.0.0",
+    "@types/sinon": "^4.3.3",
+    "mocha": "^5.1.1",
+    "chai": "^4.1.2",
+    "sinon": "^5.0.7",
+    "ts-node": "^7.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "docs": "typedoc --theme minimal --mode modules --out docs/",
+    "test": "mocha -r 'ts-node/register' tests/*Test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cfxmarkets/ts-httpish.git"
+  }
 }
